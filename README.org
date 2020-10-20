@@ -1,0 +1,87 @@
+#+title: windows-scripts
+#+author: Yuriy VG
+
+My scripts for Windows OS
+
+Usage:
+1. Copy script/scripts from =bin= directory to =c:/Windows= (or other =PATH= directory)
+2. Press =Windows+R= to open the "Run" box. Type =<script_name>= into the box(press
+   =Ctrl+Shift+Enter= to run the script as an administrator).
+
+** PDFXCview (pdfx)
+#+begin_src bat :tangle bin/pdfx.bat :mkdirp yes
+rem
+rem Launch PDFXCview from installation directory
+rem
+@echo off
+start "" "C:\Program Files\Tracker Software\PDF Viewer\PDFXCview.exe"
+#+end_src
+
+** Acrobat reader
+#+begin_src bat :tangle bin/acrobat.bat :mkdirp yes
+rem
+rem Launch Acrobat Reader from installatoin directory
+rem
+@echo off
+start "" "c:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"
+#+end_src
+
+** Shutdown
+#+begin_src bat :tangle bin/shdown.bat :mkdirp yes
+rem
+rem Shutdown Windows OS
+rem
+@echo off
+shutdown /s /t 0
+#+end_src
+
+** Reboot
+#+begin_src bat :tangle bin/reboot.bat :mkdirp yes
+rem
+rem Reboot Windows OS
+rem
+@echo off
+shutdown /r /t 5
+#+end_src
+
+** Git-bash
+#+begin_src bat :tangle bin/gitbash.bat :mkdirp yes
+rem
+rem Launch Git-bash.exe from installation directory
+rem
+@echo off
+start "" "C:\Git\git-bash.exe"
+#+end_src
+
+** Develop-mode
+*** Enable Develop-mode
+#+begin_src bat :tangle bin/test_signed_drivers_on.bat :mkdirp yes
+rem
+rem Enable Loading of Test Signed Drivers
+rem
+rem https://docs.microsoft.com/en-us/windows-hardware/drivers/install/the-testsigning-boot-configuration-option
+rem
+rem Administrator rights required:
+rem  Press Windows+R to open the "Run" box. Type "cmd" into the box and then press
+rem  Ctrl+Shift+Enter to run the command as an administrator.
+rem
+@echo off
+bcdedit /set testsigning on
+pause
+#+end_src
+
+*** Disable Develop-mode
+#+begin_src bat :tangle bin/test_signed_drivers_off.bat :mkdirp yes
+rem
+rem Disable of Test Signed Drivers
+rem
+rem https://docs.microsoft.com/en-us/windows-hardware/drivers/install/the-testsigning-boot-configuration-option
+rem
+rem Administrator rights required:
+rem  Press Windows+R to open the "Run" box. Type "cmd" into the box and then press
+rem  Ctrl+Shift+Enter to run the command as an administrator.
+rem
+@echo off
+bcdedit /set testsigning off
+pause
+#+end_src
