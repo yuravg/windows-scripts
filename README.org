@@ -56,6 +56,7 @@ start "" "C:\Git\git-bash.exe"
 ** Develop-mode
 *** Enable Develop-mode
 #+begin_src bat :tangle bin/test_signed_drivers_on.bat :mkdirp yes
+@echo off
 rem
 rem Enable Loading of Test Signed Drivers
 rem
@@ -64,14 +65,20 @@ rem
 rem Administrator rights required:
 rem  Press Windows+R to open the "Run" box. Type "cmd" into the box and then press
 rem  Ctrl+Shift+Enter to run the command as an administrator.
-rem
-@echo off
+
+echo ***** ENABLE Loading of Test Signed Drivers *****
+echo NOTE: Administrator rights required!
+echo        (press Windows+R to open the "Run" box;
+echo         Ctrl+Shift+Enter to run the command as an administrator)
+@echo on
+
 bcdedit /set testsigning on
 pause
 #+end_src
 
 *** Disable Develop-mode
 #+begin_src bat :tangle bin/test_signed_drivers_off.bat :mkdirp yes
+@echo off
 rem
 rem Disable of Test Signed Drivers
 rem
@@ -80,8 +87,13 @@ rem
 rem Administrator rights required:
 rem  Press Windows+R to open the "Run" box. Type "cmd" into the box and then press
 rem  Ctrl+Shift+Enter to run the command as an administrator.
-rem
-@echo off
+
+echo ***** DISABLE Loading of Test Signed Drivers *****
+echo NOTE: Administrator rights required!
+echo        (press Windows+R to open the "Run" box;
+echo         Ctrl+Shift+Enter to run the command as an administrator)
+@echo on
+
 bcdedit /set testsigning off
 pause
 #+end_src
