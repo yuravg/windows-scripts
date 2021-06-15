@@ -172,3 +172,6 @@ $device_name = "<DeviceName>"
 
 Get-WmiObject Win32_PNPEntity | Where-Object{$_.ConfigManagerErrorCode -eq 0} | Where-object{$_.Name -Match $device_name} | Select Name, DeviceID
 #+end_src
+
+* Windows registry configurations
+[[file:regedit/Add_Open_Bash_window_here_context_menu.reg]] -- Add 'Open Bash window here' context menu in Windows 10
