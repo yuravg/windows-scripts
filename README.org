@@ -8,6 +8,10 @@ Usage:
 2. Press =Windows+R= to open the "Run" box. Type =<script_name>= into the box(press
    =Ctrl+Shift+Enter= to run the script as an administrator).
 
+Directory =templates= has some templates of scripts.
+
+Directory =regedit= has scripts to configuration Windows registry.
+
 * bin
 
 ** PDFXCview (pdfx)
