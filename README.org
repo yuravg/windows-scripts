@@ -14,6 +14,15 @@ Directory =regedit= has scripts to configuration Windows registry.
 
 * bin
 
+** ConEmu
+#+begin_src bat :tangle bin/conemu.bat :mkdirp yes
+rem
+rem Launch ConEmu installation directory
+rem
+@echo off
+start "" "C:\Program Files\ConEmu\ConEmu64.exe"
+#+end_src
+
 ** PDFXCview (pdfx)
 #+begin_src bat :tangle bin/pdfx.bat :mkdirp yes
 rem
