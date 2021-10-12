@@ -68,6 +68,15 @@ rem
 start "" "C:\Git\git-bash.exe"
 #+end_src
 
+** Jupyter Console
+#+begin_src bat :tangle bin/jconsole.bat :mkdirp yes
+rem
+rem Jupyter Console
+rem
+@echo off
+start "" "c:\Python38\Scripts\jupyter-console.exe"
+#+end_src
+
 ** Develop-mode
 *** Enable Develop-mode
 #+begin_src bat :tangle bin/test_signed_drivers_on.bat :mkdirp yes
