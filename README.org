@@ -16,64 +16,71 @@ Directory =regedit= has scripts to configuration Windows registry.
 
 ** ConEmu
 #+begin_src bat :tangle bin/conemu.bat :mkdirp yes
+@echo off
 rem
 rem Launch ConEmu installation directory
 rem
-@echo off
+@echo on
 start "" "C:\Program Files\ConEmu\ConEmu64.exe"
 #+end_src
 
 ** PDFXCview (pdfx)
 #+begin_src bat :tangle bin/pdfx.bat :mkdirp yes
+@echo off
 rem
 rem Launch PDFXCview from installation directory
 rem
-@echo off
+@echo on
 start "" "C:\Program Files\Tracker Software\PDF Viewer\PDFXCview.exe"
 #+end_src
 
 ** Acrobat reader
 #+begin_src bat :tangle bin/acrobat.bat :mkdirp yes
+@echo off
 rem
 rem Launch Acrobat Reader from installatoin directory
 rem
-@echo off
+@echo on
 start "" "c:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"
 #+end_src
 
 ** Shutdown
 #+begin_src bat :tangle bin/shdown.bat :mkdirp yes
+@echo off
 rem
 rem Shutdown Windows OS
 rem
-@echo off
+@echo on
 shutdown /s /t 0
 #+end_src
 
 ** Reboot
 #+begin_src bat :tangle bin/reboot.bat :mkdirp yes
+@echo off
 rem
 rem Reboot Windows OS
 rem
-@echo off
+@echo on
 shutdown /r /t 5
 #+end_src
 
 ** Git-bash
 #+begin_src bat :tangle bin/gitbash.bat :mkdirp yes
+@echo off
 rem
 rem Launch Git-bash.exe from installation directory
 rem
-@echo off
+@echo on
 start "" "C:\Git\git-bash.exe"
 #+end_src
 
 ** Jupyter Console
 #+begin_src bat :tangle bin/jconsole.bat :mkdirp yes
+@echo off
 rem
 rem Jupyter Console
 rem
-@echo off
+@echo on
 start "" "c:\Python38\Scripts\jupyter-console.exe"
 #+end_src
 

@@ -1,5 +1,6 @@
+@echo off
 rem
 rem Shutdown Windows OS
 rem
-@echo off
+@echo on
 shutdown /s /t 0

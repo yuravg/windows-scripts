@@ -1,5 +1,6 @@
+@echo off
 rem
 rem Jupyter Console
 rem
-@echo off
+@echo on
 start "" "c:\Python38\Scripts\jupyter-console.exe"

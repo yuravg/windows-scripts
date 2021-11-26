@@ -1,5 +1,6 @@
+@echo off
 rem
 rem Reboot Windows OS
 rem
-@echo off
+@echo on
 shutdown /r /t 5
