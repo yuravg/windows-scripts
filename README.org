@@ -84,6 +84,16 @@ rem
 start "" "c:\Python38\Scripts\jupyter-console.exe"
 #+end_src
 
+** Jupyter Console
+#+begin_src bat :tangle bin/qtconsole.bat :mkdirp yes
+@echo off
+rem
+rem Jupyter QtConsole
+rem
+@echo on
+start "" "jupyter-qtconsole.exe"
+#+end_src
+
 ** Develop-mode
 *** Enable Develop-mode
 #+begin_src bat :tangle bin/test_signed_drivers_on.bat :mkdirp yes
