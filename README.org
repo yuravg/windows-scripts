@@ -74,6 +74,16 @@ rem
 start "" "C:\Git\git-bash.exe"
 #+end_src
 
+** MinGW
+#+begin_src bat :tangle bin/mingw.bat :mkdirp yes
+@echo off
+rem
+rem Launch mingw64.exe from installation directory
+rem
+@echo on
+start "" "c:\msys64\mingw64.exe"
+#+end_src
+
 ** Jupyter Console
 #+begin_src bat :tangle bin/jconsole.bat :mkdirp yes
 @echo off
