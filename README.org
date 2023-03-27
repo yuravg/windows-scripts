@@ -235,3 +235,16 @@ Get-WmiObject Win32_PNPEntity | Where-Object{$_.ConfigManagerErrorCode -eq 0} | 
 
 * Windows registry configurations
 [[file:regedit/Add_Open_Bash_window_here_context_menu.reg]] -- Add 'Open Bash window here' context menu in Windows 10
+
+* Drivers
+
+** Windows PnPUtil tool
+
+[[https://github.com/MicrosoftDocs/windows-driver-docs/blob/staging/windows-driver-docs-pr/devtest/pnputil-examples.md][pnputil-examples]]
+
+#+begin_src powershell
+# List devices
+pnputil /enum-devices
+# Remove drivers
+pnputil /delete-driver <driver-name> /force
+#+end_src
