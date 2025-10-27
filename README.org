@@ -84,6 +84,17 @@ rem
 start "" "c:\msys64\mingw64.exe"
 #+end_src
 
+** WSL, Ubuntu v24
+#+begin_src bat :tangle bin/wslu24.bat :mkdirp yes
+@echo off
+rem
+rem Launch WSL Ubuntu v24 from installation directory
+rem
+
+@echo on
+wsl -d Ubuntu-24.04
+#+end_src
+
 ** Jupyter Console
 #+begin_src bat :tangle bin/jconsole.bat :mkdirp yes
 @echo off
