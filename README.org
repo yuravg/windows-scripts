@@ -298,44 +298,30 @@ Get-WmiObject Win32_PNPEntity | Where-Object{$_.ConfigManagerErrorCode -eq 0} | 
 ** Set link speed
 Set an Ethernet adapter's negotiated link speed by matching the requested
 value against the adapter driver's own "Speed & Duplex" advanced-property
-options (avoids hardcoding vendor-specific display strings).
+options (avoids hardcoding vendor-specific display strings). Run it from an
+already-elevated shell (e.g. ConEmu/PowerShell started as Administrator) -
+it does not self-elevate, so it never pops a UAC window.
 
-#+begin_src powershell :tangle templates/eth_sweetch_speed.ps1 :mkdirp yes
+#+begin_src powershell :tangle templates/eth_set_speed.ps1 :mkdirp yes
 #!/usr/bin/env powershell
 
 #
 # Ethernet Adapter - Set Link Speed
 #
+# Run from an already-elevated shell (does not self-elevate / no UAC popup).
+#
 # Usage:
-#   .\eth_sweetch_speed.ps1 -Speed 1G
-#   .\eth_sweetch_speed.ps1 -Speed 100 -AdapterName "Ethernet 2"
+#   .\eth_set_speed.ps1 -Speed 1G
+#   .\eth_set_speed.ps1 -Speed 100 -AdapterName "Ethernet 2"
 #
 # -Speed accepts: 10, 100, 1000 (or 1G), 2500 (or 2.5G), 10000 (or 10G)
 #
 
 param(
-    [Parameter(Mandatory = $true)]
-    [ValidateSet('10', '100', '1000', '1G', '2500', '2.5G', '10000', '10G')]
     [string]$Speed,
-
-    [string]$AdapterName = (Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.PhysicalMediaType -eq '802.3' } | Select-Object -First 1 -ExpandProperty Name)
+    [string]$AdapterName
 )
 
-# Escalate privileges if not admin
-If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
-{
-    $arguments = "& '" + $myinvocation.mycommand.definition + "' -Speed '$Speed' -AdapterName '$AdapterName'"
-    Start-Process powershell -Verb runAs -ArgumentList $arguments
-    Break
-}
-
-if (-not $AdapterName) {
-    Write-Error "No active Ethernet adapter found; specify -AdapterName explicitly."
-    exit 1
-}
-
-# Match the requested speed against this adapter's actual "Speed & Duplex" values
-# (vendors phrase these differently, e.g. "1.0 Gbps Full Duplex" vs "1000 Mbps Full Duplex")
 $speedPatterns = @{
     '10'    = '^10\s*Mbps'
     '100'   = '^100\s*Mbps'
@@ -346,24 +332,110 @@ $speedPatterns = @{
     '10000' = '10\.0\s*Gbps|^10\s*Gbps'
     '10G'   = '10\.0\s*Gbps|^10\s*Gbps'
 }
-$pattern = $speedPatterns[$Speed]
 
-$prop = Get-NetAdapterAdvancedProperty -Name $AdapterName -DisplayName "Speed & Duplex" -ErrorAction SilentlyContinue
+if (-not $speedPatterns.ContainsKey($Speed)) {
+    Write-Host "Usage: eth_set_speed.ps1 -Speed <10|100|1000|1G|2500|2.5G|10000|10G> [-AdapterName <name>]"
+    exit 1
+}
+
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Host "Not elevated - re-run this from an Administrator shell (this script will not self-elevate)."
+    exit 1
+}
+
+if (-not $AdapterName) {
+    $AdapterName = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.PhysicalMediaType -eq '802.3' } | Select-Object -First 1 -ExpandProperty Name
+}
+if (-not $AdapterName) {
+    Write-Host "No active Ethernet adapter found - pass -AdapterName explicitly."
+    exit 1
+}
+
+# Match the requested speed against this adapter's actual "Speed & Duplex" values
+# (vendors phrase these differently, e.g. "1.0 Gbps Full Duplex" vs "1000 Mbps Full Duplex")
+$prop = Get-NetAdapterAdvancedProperty -Name $AdapterName -DisplayName "Speed & Duplex"
 if (-not $prop) {
-    Write-Error "Adapter '$AdapterName' has no 'Speed & Duplex' advanced property; speed cannot be set this way."
+    Write-Host "Adapter '$AdapterName' has no 'Speed & Duplex' setting - speed cannot be set this way."
     exit 1
 }
 
-$targetValue = $prop.ValidDisplayValues | Where-Object { $_ -match $pattern -and $_ -match 'Full Duplex' } | Select-Object -First 1
+$targetValue = $prop.ValidDisplayValues | Where-Object { $_ -match $speedPatterns[$Speed] -and $_ -match 'Full Duplex' } | Select-Object -First 1
 if (-not $targetValue) {
-    Write-Error "Adapter '$AdapterName' does not support speed '$Speed'. Valid values: $($prop.ValidDisplayValues -join ', ')"
+    Write-Host "Adapter '$AdapterName' does not support speed '$Speed'. Valid values: $($prop.ValidDisplayValues -join ', ')"
     exit 1
 }
 
-Write-Host "***** Setting '$AdapterName' speed to '$targetValue' ***** `n" -ForegroundColor Green
 Set-NetAdapterAdvancedProperty -Name $AdapterName -DisplayName "Speed & Duplex" -DisplayValue $targetValue -Confirm:$false
+Write-Host "'$AdapterName' set to '$targetValue'"
+#+end_src
 
-Get-NetAdapterAdvancedProperty -Name $AdapterName -DisplayName "Speed & Duplex"
+** Speed launchers
+Thin =bin/*.bat= wrappers for the most-used speeds, named =Eth<speed>= (=Eth100=, =Eth1G=, =Eth2G5= for
+2.5G, =Eth10G=). Non-interactive: no prompts, no pause, nothing to type - meant to be called as
+one step from another script (e.g. a MinGW/bash test harness), not typed at =Windows+R=.  Each
+just forwards to =eth_set_speed.ps1= at a fixed path and returns its exit code;
+
+Neither the =.bat= nor the underlying =.ps1= self-elevates (no UAC popup).  That means *the calling
+shell/process must already be running elevated*: launch your MinGW/bash shell itself "as
+Administrator" once, and every child process it spawns - including these =.bat= calls - inherits
+that elevated token. There is no way to elevate silently mid-script otherwise (short of a
+pre-configured "run with highest privileges" scheduled task).
+
+Each takes an optional first argument: the adapter name (as shown by =Get-NetAdapter=), forwarded
+straight to =eth_set_speed.ps1='s =-AdapterName=. Omit it to auto-detect the first "Up" Ethernet
+adapter.
+
+#+begin_src bat :tangle no
+Eth100.bat                  # auto-detected adapter
+Eth100.bat "Ethernet 2"     # explicit adapter
+#+end_src
+
+*** 100 Mbps
+#+begin_src bat :tangle bin/eth100.bat :mkdirp yes
+@echo off
+rem
+rem Set Ethernet adapter link speed to 100 Mbps.
+rem Non-interactive - call from an already-elevated shell/script.
+rem Optional %1: adapter name (see "Get-NetAdapter"); default: auto-detect.
+rem
+if "%~1"=="" (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%HOME%\projects\windows-scripts\templates\eth_set_speed.ps1" -Speed 100
+) else (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%HOME%\projects\windows-scripts\templates\eth_set_speed.ps1" -Speed 100 -AdapterName "%~1"
+)
+exit /b %ERRORLEVEL%
+#+end_src
+
+*** 1 Gbps
+#+begin_src bat :tangle bin/eth1g.bat :mkdirp yes
+@echo off
+rem
+rem Set Ethernet adapter link speed to 1 Gbps.
+rem Non-interactive - call from an already-elevated shell/script.
+rem Optional %1: adapter name (see "Get-NetAdapter"); default: auto-detect.
+rem
+if "%~1"=="" (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%HOME%\projects\windows-scripts\templates\eth_set_speed.ps1" -Speed 1G
+) else (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%HOME%\projects\windows-scripts\templates\eth_set_speed.ps1" -Speed 1G -AdapterName "%~1"
+)
+exit /b %ERRORLEVEL%
+#+end_src
+
+*** 2.5 Gbps
+#+begin_src bat :tangle bin/eth2g5.bat :mkdirp yes
+@echo off
+rem
+rem Set Ethernet adapter link speed to 1 Gbps.
+rem Non-interactive - call from an already-elevated shell/script.
+rem Optional %1: adapter name (see "Get-NetAdapter"); default: auto-detect.
+rem
+if "%~1"=="" (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%HOME%\projects\windows-scripts\templates\eth_set_speed.ps1" -Speed 2500
+) else (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%HOME%\projects\windows-scripts\templates\eth_set_speed.ps1" -Speed 2500 -AdapterName "%~1"
+)
+exit /b %ERRORLEVEL%
 #+end_src
 
 * Windows registry configurations
